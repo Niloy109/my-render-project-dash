@@ -3,3 +3,4 @@ uvicorn[standard]==0.22.0
 paramiko==3.4.0
 python-dotenv==1.0.0
 discord.py==2.6.4
+python-multipart==0.0.6
