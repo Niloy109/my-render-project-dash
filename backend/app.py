@@ -1,9 +1,13 @@
+# backend/app.py
+
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 import os, json, uuid, threading
 import paramiko
 
 app = FastAPI()
+
+# ===== BASE FOLDER & FILES =====
 BASE = "backend/data"
 os.makedirs(BASE, exist_ok=True)
 
@@ -31,6 +35,11 @@ SESSION = {}
 if not os.path.exists(FILES["settings"]):
     save("settings", {"name":"My Dashboard","captcha":False,"smtp":{}})
 
+# ================= ROOT REDIRECT =================
+@app.get("/", response_class=RedirectResponse)
+def root():
+    return "/dashboard"
+
 # ================= LOGIN =================
 @app.get("/auth/login", response_class=HTMLResponse)
 def login_page():
@@ -45,11 +54,9 @@ def login_page():
 
 @app.post("/auth/login")
 def login(email: str = Form(...), password: str = Form(...)):
-    # Main admin
     if email=="admin@example.com" and password=="admin123":
         SESSION["user"]={"email":email,"admin":True}
         return RedirectResponse("/dashboard",302)
-    # Normal users
     users = load("users",{})
     if email in users and users[email]["password"]==password:
         SESSION["user"]={"email":email,"admin":False}
@@ -71,7 +78,6 @@ def dashboard():
     perms = load("perm",{})
     my_vps = {k:v for k,v in vps.items() if u["admin"] or v["owner"]==u["email"]}
 
-    # VPS list
     rows=""
     if not my_vps:
         rows="<p>No VPS associated with your account</p>"
@@ -91,7 +97,6 @@ def dashboard():
             </div>
             """
 
-    # Admin panels
     admin_panel=""
     if u["admin"]:
         admin_panel=f"""
@@ -110,12 +115,9 @@ def dashboard():
             <input name=password placeholder="Password" required>
             <button>Create User</button>
         </form>
-        <h3>Permissions</h3>
-        <p>(Manage user permissions UI)</p>
-        <h3>Domains</h3>
-        <p>(Domain + IPv4 management UI)</p>
-        <h3>Discord Bot</h3>
-        <p>(Discord bot panel UI)</p>
+        <h3>Permissions</h3><p>(Manage user permissions UI)</p>
+        <h3>Domains</h3><p>(Domain + IPv4 management UI)</p>
+        <h3>Discord Bot</h3><p>(Discord bot panel UI)</p>
         """
 
     return f"""
@@ -158,7 +160,6 @@ def vps_action(name:str=Form(...), action:str=Form(...)):
         save("vps",v)
     return RedirectResponse("/dashboard",302)
 
-# ================= SSH CONSOLE (thread) =================
 def start_ssh_console(vps):
     ip = vps["ip"]
     user = vps["ssh_user"]
