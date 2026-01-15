@@ -1,11 +1,20 @@
-fastapi==0.111.2
-uvicorn==0.23.2
-python-multipart==0.0.6
-paramiko==3.4.3
-jinja2==3.1.2
-requests==2.31.0
-pydantic==2.6.2
-python-dotenv==1.0.1
-aiofiles==23.1.0
-discord.py==2.6.0
+# FastAPI framework
+fastapi==0.138.0
 
+# ASGI server
+uvicorn[standard]==0.22.0
+
+# SSH console support
+paramiko==3.4.0
+
+# Load environment variables
+python-dotenv==1.0.0
+
+# Discord bot (optional)
+discord.py==2.4.1
+
+# HTTP requests
+requests==2.31.0
+
+# JSON/YAML support
+PyYAML==6.0
